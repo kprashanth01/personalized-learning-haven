@@ -58,9 +58,19 @@ const ChatWithAI = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <Card className="glass-card min-h-[80vh] flex flex-col">
-        <div className="flex-1 p-6 overflow-y-auto space-y-4">
+    <div className="container mx-auto p-4 max-w-4xl">
+      <Card className="glass-card min-h-[85vh] flex flex-col">
+        <div className="flex-1 p-4 overflow-y-auto space-y-4">
+          {messages.length === 0 && (
+            <div className="text-center text-white/60 mt-8">
+              <h3 className="text-lg font-semibold mb-2">
+                How can I assist you today?
+              </h3>
+              <p className="text-sm">
+                Ask me anything! I'm here to help with your questions.
+              </p>
+            </div>
+          )}
           {messages.map((message, index) => (
             <div
               key={index}
@@ -87,12 +97,12 @@ const ChatWithAI = () => {
           ))}
         </div>
         <div className="p-4 border-t border-white/20">
-          <div className="flex gap-2">
+          <div className="flex gap-2 max-w-4xl mx-auto">
             <Textarea
-              placeholder="Enter your prompt here..."
+              placeholder="Send a message..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              className="glass-input"
+              className="glass-input min-h-[60px] max-h-[120px]"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
