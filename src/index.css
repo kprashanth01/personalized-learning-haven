@@ -66,3 +66,36 @@
 .glass-input {
   @apply bg-white/5 border-white/20;
 }
+
+/* Add styling for markdown content */
+.prose {
+  @apply max-w-none;
+}
+
+.prose pre {
+  @apply bg-black/20 p-4 rounded-lg;
+}
+
+.prose code {
+  @apply bg-black/20 px-1 py-0.5 rounded;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  @apply text-white/90 font-bold;
+}
+
+.prose p {
+  @apply text-white/80;
+}
+
+.prose ul,
+.prose ol {
+  @apply text-white/80 list-disc list-inside;
+}
+
+.prose a {
+  @apply text-primary underline;
+}

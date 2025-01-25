@@ -4,12 +4,18 @@ import { Button } from "./ui/button";
 import { Textarea } from "./ui/textarea";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { useToast } from "./ui/use-toast";
+import ReactMarkdown from "react-markdown";
 
 const genAI = new GoogleGenerativeAI("AIzaSyAZmTdvQQ2lK-CXY2FhpUxGDM3nCqjYmiE");
 
+interface Message {
+  role: "user" | "ai";
+  content: string;
+}
+
 const ChatWithAI = () => {
   const [prompt, setPrompt] = useState("");
-  const [response, setResponse] = useState("");
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -23,11 +29,23 @@ const ChatWithAI = () => {
       return;
     }
 
+    const userMessage: Message = {
+      role: "user",
+      content: prompt,
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
     setIsLoading(true);
+
     try {
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       const result = await model.generateContent(prompt);
-      setResponse(result.response.text());
+      const aiMessage: Message = {
+        role: "ai",
+        content: result.response.text(),
+      };
+      setMessages((prev) => [...prev, aiMessage]);
+      setPrompt("");
     } catch (error) {
       toast({
         title: "Error",
@@ -40,28 +58,56 @@ const ChatWithAI = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 mt-20">
-      <Card className="p-6 backdrop-blur-lg bg-white/10 border-white/20">
-        <h1 className="text-2xl font-bold mb-6">Chat with AI</h1>
-        <div className="space-y-4">
-          <Textarea
-            placeholder="Enter your prompt here..."
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            className="min-h-[100px] bg-white/5 border-white/20"
-          />
-          <Button 
-            onClick={handleSubmit} 
-            disabled={isLoading}
-            className="w-full"
-          >
-            {isLoading ? "Generating..." : "Send"}
-          </Button>
-          {response && (
-            <Card className="p-4 mt-4 bg-white/5 border-white/20">
-              <pre className="whitespace-pre-wrap">{response}</pre>
-            </Card>
-          )}
+    <div className="container mx-auto p-6">
+      <Card className="glass-card min-h-[80vh] flex flex-col">
+        <div className="flex-1 p-6 overflow-y-auto space-y-4">
+          {messages.map((message, index) => (
+            <div
+              key={index}
+              className={`flex ${
+                message.role === "user" ? "justify-end" : "justify-start"
+              }`}
+            >
+              <div
+                className={`max-w-[80%] p-4 rounded-lg ${
+                  message.role === "user"
+                    ? "bg-primary text-primary-foreground ml-auto"
+                    : "glass-card"
+                }`}
+              >
+                {message.role === "ai" ? (
+                  <ReactMarkdown className="prose prose-invert">
+                    {message.content}
+                  </ReactMarkdown>
+                ) : (
+                  <p>{message.content}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="p-4 border-t border-white/20">
+          <div className="flex gap-2">
+            <Textarea
+              placeholder="Enter your prompt here..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              className="glass-input"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSubmit();
+                }
+              }}
+            />
+            <Button
+              onClick={handleSubmit}
+              disabled={isLoading}
+              className="shrink-0"
+            >
+              {isLoading ? "Sending..." : "Send"}
+            </Button>
+          </div>
         </div>
       </Card>
     </div>
